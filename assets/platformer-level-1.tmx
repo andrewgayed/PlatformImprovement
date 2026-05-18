@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="48" height="25" tilewidth="18" tileheight="18" infinite="0" nextlayerid="3" nextobjectid="47">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="48" height="25" tilewidth="18" tileheight="18" infinite="0" nextlayerid="4" nextobjectid="57">
  <editorsettings>
   <export target="platformer-level-1.tmj" format="json"/>
  </editorsettings>
@@ -235,4 +235,16 @@
 123,123,123,123,123,123,123,123,124,63,63,63,63,63,63,122,123,123,123,123,123,123,123,123,123,123,124,63,63,63,63,63,63,122,123,123,123,123,123,123,123,123,123,124,74,74,74,74
 </data>
  </layer>
+ <objectgroup id="3" name="Objects">
+  <object id="47" name="coin" gid="152" x="324.81" y="364.224" width="18" height="18"/>
+  <object id="48" name="coin" gid="152" x="303.395" y="361.704" width="18" height="18"/>
+  <object id="49" name="coin" gid="152" x="681.293" y="124.889" width="18" height="18"/>
+  <object id="50" name="coin" gid="152" x="570.443" y="165.198" width="18" height="18"/>
+  <object id="51" name="coin" gid="152" x="773.248" y="278.567" width="18" height="18"/>
+  <object id="52" name="coin" gid="152" x="253.009" y="292.423" width="18" height="18"/>
+  <object id="53" name="coin" gid="152" x="269.385" y="199.208" width="18" height="18"/>
+  <object id="54" name="coin" gid="152" x="392.831" y="129.927" width="18" height="18"/>
+  <object id="55" name="coin" gid="152" x="608.233" y="328.953" width="18" height="18"/>
+  <object id="56" name="coin" gid="152" x="677.514" y="328.953" width="18" height="18"/>
+ </objectgroup>
 </map>
