@@ -16,8 +16,7 @@ class Platformer extends Phaser.Scene {
     create() {
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
-        this.map = this.add.tilemap("platformer-level-1", 18, 18, 45, 25);
-
+        this.map = this.add.tilemap("platformer-level-1");
         // Add a tileset to the map
         // First parameter: name we gave the tileset in Tiled
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
@@ -25,6 +24,12 @@ class Platformer extends Phaser.Scene {
 
         // Create a layer
         this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
+        this.physics.world.setBounds(
+            0,
+            0,
+            this.map.widthInPixels,
+            this.map.heightInPixels
+        );
 
         // Make it collidable
         this.groundLayer.setCollisionByProperty({
@@ -57,6 +62,10 @@ class Platformer extends Phaser.Scene {
 
         this.waterTiles = this.groundLayer.filterTiles(tile => {
             return tile.properties.water == true;
+        });
+
+        this.fallingTiles = this.groundLayer.filterTiles(tile => {
+            return tile.properties.falling == true;
         });
 
         this.score = 0;
@@ -116,6 +125,7 @@ class Platformer extends Phaser.Scene {
 
         this.rKey = this.input.keyboard.addKey('R');
         this.pKey = this.input.keyboard.addKey('P');
+        this.fKey = this.input.keyboard.addKey('F');
 
         // debug key listener (assigned to D key)
         this.input.keyboard.on('keydown-D', () => {
@@ -135,7 +145,17 @@ class Platformer extends Phaser.Scene {
         });
 
         my.vfx.walking.stop();
-        
+        this.boostParticles = this.add.particles(0, 0, "kenny-particles", {
+            frame: ["smoke_03.png", "smoke_09.png"],
+            speed: { min: 40, max: 120 },
+            angle: { min: 60, max: 120 },
+            lifespan: 300,
+            scale: { start: 0.08, end: 0 },
+            alpha: { start: 1, end: 0 },
+            quantity: 10,
+            emitting: false
+        });
+                
 
         // TODO: add camera code here
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -168,7 +188,19 @@ class Platformer extends Phaser.Scene {
             my.sprite.player.setAccelerationX(this.ACCELERATION);
             my.sprite.player.setFlip(true, false);
             my.sprite.player.anims.play('walk', true);
-            // TODO: add particle following code here
+
+            my.vfx.walking.startFollow(
+                my.sprite.player,
+                -my.sprite.player.displayWidth/2 + 10,
+                my.sprite.player.displayHeight/2 - 5,
+                false
+            );
+
+            my.vfx.walking.setParticleSpeed(-this.PARTICLE_VELOCITY, 0);
+
+            if (my.sprite.player.body.blocked.down) {
+                my.vfx.walking.start();
+            }
 
         } else {
             // Set acceleration to 0 and have DRAG take over
@@ -188,10 +220,33 @@ class Platformer extends Phaser.Scene {
             my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
         }
 
+        if (this.fKey.isDown && !my.sprite.player.body.blocked.down){
+            my.sprite.player.setVelocityY(-200);
+            this.boostParticles.emitParticleAt(
+                my.sprite.player.x,
+                my.sprite.player.y + 10,
+                2
+            );
+        }
+
         let playerTile = this.groundLayer.getTileAtWorldXY(
             my.sprite.player.x,
-            my.sprite.player.y
+            my.sprite.player.y + my.sprite.player.displayHeight / 2 + 2
         );
+
+        if (
+            playerTile &&
+            playerTile.properties.falling == true &&
+            !playerTile.isBreaking
+        ) {
+            playerTile.isBreaking = true;
+            this.time.delayedCall(1000, () => {
+                this.groundLayer.removeTileAt(
+                    playerTile.x,
+                    playerTile.y
+                );
+            });
+        }
 
         if (playerTile && playerTile.properties.water == true) {
 
@@ -203,6 +258,7 @@ class Platformer extends Phaser.Scene {
 
             my.sprite.player.setVelocity(0, 0);
             my.sprite.player.setPosition(this.startX, this.startY);
+            return;
         }
 
         if(Phaser.Input.Keyboard.JustDown(this.rKey)) {
@@ -212,5 +268,6 @@ class Platformer extends Phaser.Scene {
         if(Phaser.Input.Keyboard.JustDown(this.pKey)) {
             this.scene.pause();
         }
+
     }
 }
